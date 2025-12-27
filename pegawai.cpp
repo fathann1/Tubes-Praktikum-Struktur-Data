@@ -27,13 +27,19 @@ void tambahPegawai(string nama) {
 
 // Menambahkan satu data shift ke dalam list shift
 void tambahShift(string nama) {
+    if (cariShift(nama) != NULL) {
+        cout << "[GAGAL] Shift \"" << nama << "\" sudah terdaftar.\n";
+        return;
+    }
+
     Shift* s = new Shift;
     s->nama = nama;
     s->relasi = NULL;
     s->next = headShift;
     headShift = s;
-}
 
+    cout << "[BERHASIL] Shift \"" << nama << "\" berhasil ditambahkan.\n";
+}
 
 /* PENCARIAN DATA  */
 // Mencari pegawai berdasarkan nama
@@ -65,24 +71,23 @@ void tambahRelasi(string namaPegawai, string namaShift) {
     Pegawai* p = cariPegawai(namaPegawai);
     Shift* s = cariShift(namaShift);
 
-    // Jika salah satu tidak ditemukan
     if (p == NULL || s == NULL) {
-        cout << "Data tidak ditemukan\n";
+        cout << "[GAGAL] Pegawai atau shift tidak ditemukan.\n";
         return;
     }
 
-    // Membuat node relasi baru
     Relasi* r = new Relasi;
     r->pegawai = p;
     r->shift = s;
 
-    // Relasi ke pegawai
     r->nextPegawai = p->relasi;
     p->relasi = r;
 
-    // Relasi ke shift
     r->nextShift = s->relasi;
     s->relasi = r;
+
+    cout << "[BERHASIL] Relasi pegawai \"" << namaPegawai
+         << "\" dengan shift \"" << namaShift << "\" berhasil ditambahkan.\n";
 }
 
 
