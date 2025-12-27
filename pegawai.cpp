@@ -1,48 +1,32 @@
 #include "pegawai.h"
 
-/* ===== HEAD LIST ===== */
-// Pointer awal untuk linked list pegawai
+/*INISIALISASI HEAD LIST*/
 Pegawai* headPegawai = NULL;
-
-// Pointer awal untuk linked list shift
 Shift* headShift = NULL;
 
+/*FUNGSI TAMBAH DATA*/
 
-/* ====== TAMBAH DATA ====== */
-// Menambahkan satu data pegawai ke dalam list pegawai
+/* Menambahkan pegawai ke linked list */
 void tambahPegawai(string nama) {
-    if (cariPegawai(nama) != NULL) {
-        cout << "[GAGAL] Pegawai \"" << nama << "\" sudah terdaftar.\n";
-        return;
-    }
-
     Pegawai* p = new Pegawai;
     p->nama = nama;
     p->relasi = NULL;
     p->next = headPegawai;
     headPegawai = p;
-
-    cout << "[BERHASIL] Pegawai \"" << nama << "\" berhasil ditambahkan.\n";
 }
 
-// Menambahkan satu data shift ke dalam list shift
+/* Menambahkan shift ke linked list */
 void tambahShift(string nama) {
-    if (cariShift(nama) != NULL) {
-        cout << "[GAGAL] Shift \"" << nama << "\" sudah terdaftar.\n";
-        return;
-    }
-
     Shift* s = new Shift;
     s->nama = nama;
     s->relasi = NULL;
     s->next = headShift;
     headShift = s;
-
-    cout << "[BERHASIL] Shift \"" << nama << "\" berhasil ditambahkan.\n";
 }
 
-/* PENCARIAN DATA  */
-// Mencari pegawai berdasarkan nama
+/*FUNGSI PENCARIAN*/
+
+/* Cari pegawai berdasarkan nama */
 Pegawai* cariPegawai(string nama) {
     Pegawai* p = headPegawai;
     while (p != NULL) {
@@ -53,7 +37,7 @@ Pegawai* cariPegawai(string nama) {
     return NULL;
 }
 
-// Mencari shift berdasarkan nama
+/* Cari shift berdasarkan nama */
 Shift* cariShift(string nama) {
     Shift* s = headShift;
     while (s != NULL) {
@@ -64,15 +48,15 @@ Shift* cariShift(string nama) {
     return NULL;
 }
 
+/*FUNGSI TAMBAH RELASI*/
 
-/* ====== TAMBAH RELASI ====== */
-// Menghubungkan pegawai dengan shift (many to many)
+/* Menghubungkan pegawai dengan shift (many-to-many) */
 void tambahRelasi(string namaPegawai, string namaShift) {
     Pegawai* p = cariPegawai(namaPegawai);
     Shift* s = cariShift(namaShift);
 
     if (p == NULL || s == NULL) {
-        cout << "[GAGAL] Pegawai atau shift tidak ditemukan.\n";
+        cout << "Pegawai atau shift tidak ditemukan!\n";
         return;
     }
 
@@ -80,23 +64,86 @@ void tambahRelasi(string namaPegawai, string namaShift) {
     r->pegawai = p;
     r->shift = s;
 
+    /* Hubungkan ke pegawai */
     r->nextPegawai = p->relasi;
     p->relasi = r;
 
+    /* Hubungkan ke shift */
     r->nextShift = s->relasi;
     s->relasi = r;
-
-    cout << "[BERHASIL] Relasi pegawai \"" << namaPegawai
-         << "\" dengan shift \"" << namaShift << "\" berhasil ditambahkan.\n";
 }
 
+/*FUNGSI HAPUS DATA*/
 
-/* ====== TAMPILKAN SEMUA DATA ====== */
-// Menampilkan seluruh pegawai beserta shift yang dimiliki
+/* Menghapus pegawai beserta relasinya */
+void hapusPegawai(string namaPegawai) {
+    Pegawai *p = headPegawai, *prev = NULL;
+
+    while (p != NULL && p->nama != namaPegawai) {
+        prev = p;
+        p = p->next;
+    }
+
+    if (p == NULL) {
+        cout << "Pegawai tidak ditemukan!\n";
+        return;
+    }
+
+    /* Hapus semua relasi */
+    Relasi* r = p->relasi;
+    while (r != NULL) {
+        Relasi* temp = r;
+        r = r->nextPegawai;
+        delete temp;
+    }
+
+    /* Hapus dari list */
+    if (prev == NULL)
+        headPegawai = p->next;
+    else
+        prev->next = p->next;
+
+    delete p;
+}
+
+/* Menghapus shift beserta relasinya */
+void hapusShift(string namaShift) {
+    Shift *s = headShift, *prev = NULL;
+
+    while (s != NULL && s->nama != namaShift) {
+        prev = s;
+        s = s->next;
+    }
+
+    if (s == NULL) {
+        cout << "Shift tidak ditemukan!\n";
+        return;
+    }
+
+    /* Hapus semua relasi */
+    Relasi* r = s->relasi;
+    while (r != NULL) {
+        Relasi* temp = r;
+        r = r->nextShift;
+        delete temp;
+    }
+
+    /* Hapus dari list */
+    if (prev == NULL)
+        headShift = s->next;
+    else
+        prev->next = s->next;
+
+    delete s;
+}
+
+/*FUNGSI TAMPIL DATA*/
+
+/* Menampilkan seluruh pegawai dan shift-nya */
 void tampilSemua() {
     Pegawai* p = headPegawai;
     while (p != NULL) {
-        cout << "Pegawai: " << p->nama << " | Shift: ";
+        cout << "Pegawai : " << p->nama << " | Shift : ";
         Relasi* r = p->relasi;
 
         if (r == NULL) cout << "-";
@@ -109,14 +156,12 @@ void tampilSemua() {
     }
 }
 
-
-/* ====== PEGAWAI PER SHIFT ====== */
-// Menampilkan pegawai yang bekerja pada shift tertentu
+/* Menampilkan pegawai berdasarkan shift */
 void tampilPegawaiPerShift(string namaShift) {
     Shift* s = cariShift(namaShift);
     if (s == NULL) return;
 
-    cout << "Shift " << namaShift << ": ";
+    cout << "Shift " << namaShift << " diisi oleh : ";
     Relasi* r = s->relasi;
 
     if (r == NULL) cout << "-";
@@ -127,14 +172,12 @@ void tampilPegawaiPerShift(string namaShift) {
     cout << endl;
 }
 
-
-/* ====== SHIFT PER PEGAWAI ====== */
-// Menampilkan shift yang dimiliki oleh pegawai tertentu
+/* Menampilkan shift berdasarkan pegawai */
 void tampilShiftPerPegawai(string namaPegawai) {
     Pegawai* p = cariPegawai(namaPegawai);
     if (p == NULL) return;
 
-    cout << "Pegawai " << namaPegawai << ": ";
+    cout << "Pegawai " << namaPegawai << " bekerja pada shift : ";
     Relasi* r = p->relasi;
 
     if (r == NULL) cout << "-";
@@ -145,16 +188,10 @@ void tampilShiftPerPegawai(string namaPegawai) {
     cout << endl;
 }
 
-
-/* ====== TERBANYAK & TERSEDIKIT ====== */
-// Menentukan pegawai dengan jumlah shift terbanyak dan tersedikit
+/* Menentukan pegawai dengan shift terbanyak dan tersedikit */
 void pegawaiTerbanyakTersedikit() {
-    Pegawai* p = headPegawai;
-    Pegawai* maxP = NULL;
-    Pegawai* minP = NULL;
-
-    int max = -1;
-    int min = 999;
+    Pegawai *p = headPegawai, *maxP = NULL, *minP = NULL;
+    int max = -1, min = 999;
 
     while (p != NULL) {
         int jumlah = 0;
@@ -164,20 +201,14 @@ void pegawaiTerbanyakTersedikit() {
             r = r->nextPegawai;
         }
 
-        if (jumlah > max) {
-            max = jumlah;
-            maxP = p;
-        }
-        if (jumlah < min) {
-            min = jumlah;
-            minP = p;
-        }
+        if (jumlah > max) { max = jumlah; maxP = p; }
+        if (jumlah < min) { min = jumlah; minP = p; }
 
         p = p->next;
     }
 
     if (maxP && minP) {
-        cout << "Shift terbanyak  : " << maxP->nama << endl;
-        cout << "Shift tersedikit : " << minP->nama << endl;
+        cout << "Pegawai shift terbanyak  : " << maxP->nama << endl;
+        cout << "Pegawai shift tersedikit : " << minP->nama << endl;
     }
 }
