@@ -11,11 +11,18 @@ Shift* headShift = NULL;
 /* ====== TAMBAH DATA ====== */
 // Menambahkan satu data pegawai ke dalam list pegawai
 void tambahPegawai(string nama) {
+    if (cariPegawai(nama) != NULL) {
+        cout << "[GAGAL] Pegawai \"" << nama << "\" sudah terdaftar.\n";
+        return;
+    }
+
     Pegawai* p = new Pegawai;
     p->nama = nama;
     p->relasi = NULL;
     p->next = headPegawai;
     headPegawai = p;
+
+    cout << "[BERHASIL] Pegawai \"" << nama << "\" berhasil ditambahkan.\n";
 }
 
 // Menambahkan satu data shift ke dalam list shift
